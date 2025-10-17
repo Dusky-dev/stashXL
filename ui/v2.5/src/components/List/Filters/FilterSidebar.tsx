@@ -16,14 +16,23 @@ export const FilteredSidebarHeader: React.FC<{
   filter: ListFilterModel;
   setFilter: (filter: ListFilterModel) => void;
   view?: View;
-}> = ({ sidebarOpen, showEditFilter, filter, setFilter, view }) => {
-  const focus = useFocus();
+  focus?: ReturnType<typeof useFocus>;
+}> = ({
+  sidebarOpen,
+  showEditFilter,
+  filter,
+  setFilter,
+  view,
+  focus: providedFocus,
+}) => {
+  const localFocus = useFocus();
+  const focus = providedFocus ?? localFocus;
   const [, setFocus] = focus;
 
   // Set the focus on the input field when the sidebar is opened
-  // Don't do this on mobile devices
+  // Don't do this on touch devices
   useEffect(() => {
-    if (sidebarOpen && !ScreenUtils.isMobile()) {
+    if (sidebarOpen && !ScreenUtils.isTouch()) {
       setFocus();
     }
   }, [sidebarOpen, setFocus]);
@@ -67,20 +76,6 @@ export function useFilteredSidebarKeybinds(props: {
   setShowSidebar: (show: boolean) => void;
 }) {
   const { showSidebar, setShowSidebar } = props;
-
-  // Show the sidebar when the user presses the "/" key
-  useEffect(() => {
-    Mousetrap.bind("/", (e) => {
-      if (!showSidebar) {
-        setShowSidebar(true);
-        e.preventDefault();
-      }
-    });
-
-    return () => {
-      Mousetrap.unbind("/");
-    };
-  }, [showSidebar, setShowSidebar]);
 
   // Hide the sidebar when the user presses the "Esc" key
   useEffect(() => {
